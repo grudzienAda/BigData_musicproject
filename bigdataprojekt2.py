@@ -18,18 +18,23 @@ spark = SparkSession.builder\
 
 spark
 
-files = glob.glob('hdfs://localhost:9443/user/grudziena/nifi_out/projekt/*.parquet')
-list_of_files = [i for i in files if not i.endswith("tr.parquet")]
-print(files)
-print('--')
-print(list_of_files)
-latest_file = max(list_of_files, key=os.path.getctime)
+#files = glob.glob('hdfs://localhost:9443/user/grudziena/nifi_out/projekt/*.parquet')
+#list_of_files = [i for i in files if not i.endswith("tr.parquet")]
+#print(files)
+#print('--')
+#print(list_of_files)
+#latest_file = max(list_of_files, key=os.path.getctime)
+
+fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(spark._jsc.hadoopConfiguration())
+list_status = fs.listStatus(spark._jvm.org.apache.hadoop.fs.Path("/user/grudziena/nifi_out/projekt/"))
+partitions = [file.getPath().getName() for file in list_status]
+
+latest_file = partitions[0]
+
+#file_name = latest_file.rsplit('/', 1)[1]
 
 
-file_name = latest_file.rsplit('/', 1)[1]
-
-
-df = spark.read.parquet("file://" + latest_file)
+df = spark.read.parquet("/user/grudziena/nifi_out/projekt/" + latest_file)
 
 
 
@@ -76,7 +81,7 @@ df5_SongDetails = df5.select("duration_ms","episode","popularity",
               "type", "href")
 df5_ArtistDetails = df5.select("artists_name", "artists_types", "artists_uri", "id")
 
-df5_RankingData.write.parquet('/user/grudziena/nifi_out/projekt/'+file_name[:-8]+"tr_RankingData"+file_name[-8:]) 
-df5_SongDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+file_name[:-8]+"tr_SongDetails"+file_name[-8:]) 
-df5_ArtistDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+file_name[:-8]+"tr_ArtistDetails"+file_name[-8:])
+df5_RankingData.write.parquet('/user/grudziena/nifi_out/projekt/'+latest_file[:-8]+"tr_RankingData"+latest_file[-8:]) 
+df5_SongDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+ latest_file[:-8]+"tr_SongDetails"+ latest_file[-8:]) 
+df5_ArtistDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+ latest_file[:-8]+"tr_ArtistDetails"+ latest_file[-8:])
 
