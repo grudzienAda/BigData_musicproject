@@ -75,13 +75,13 @@ from pyspark.sql.functions import col, sha2, concat
 
 df5 = df5.withColumn("uid", sha2(concat(col("ranking"), col("date"), col("time")), 256))
 
-df5_RankingData = df5.select("ranking", "date", "time", "title")
+df5_RankingData = df5.select("ranking", "date", "time", "title", "uid")
 df5_SongDetails = df5.select("duration_ms","episode","popularity",
               "song_type","song_uri","spotify","album_type","release_date","total_tracks","release_date_precision",
-              "type", "href")
-df5_ArtistDetails = df5.select("artists_name", "artists_types", "artists_uri", "id")
+              "type", "href", "uid", "date")
+df5_ArtistDetails = df5.select("artists_name", "artists_types", "artists_uri", "id", "uid", "date")
 
-df5_RankingData.write.parquet('/user/grudziena/nifi_out/projekt/'+latest_file[:-8]+"tr_RankingData"+latest_file[-8:]) 
+df5_RankingData.write.partitionBy("uid").parquet('/user/grudziena/nifi_out/projekt/'+latest_file[:-8]+"tr_RankingData"+latest_file[-8:]) 
 df5_SongDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+ latest_file[:-8]+"tr_SongDetails"+ latest_file[-8:]) 
 df5_ArtistDetails.write.parquet('/user/grudziena/nifi_out/projekt/'+ latest_file[:-8]+"tr_ArtistDetails"+ latest_file[-8:])
 
