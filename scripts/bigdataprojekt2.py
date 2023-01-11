@@ -56,7 +56,7 @@ for latest_file in partitions:
                       "type", "href", "uid", "date")
         df5_ArtistDetails = df5.select("artists_name", "artists_types", "artists_uri", "id", "uid", "date")
         df5_RankingData.write.partitionBy("date").format("parquet").mode("append").save('/user/grudziena/nifi_out/projekt/RankingData')
-        df5_SongDetails.write.partitionBy("date").format("parquet").mode("append").save('/user/grudziena/nifi_out/projekt/tr_SongDetails')
-        df5_ArtistDetails.write.partitionBy("date").format("parquet").mode("append").save('/user/grudziena/nifi_out/projekt/tr_ArtistDetails')
+        df5_SongDetails.write.partitionBy("date").format("parquet").mode("append").save('/user/grudziena/nifi_out/projekt/SongDetails')
+        df5_ArtistDetails.write.partitionBy("date").format("parquet").mode("append").save('/user/grudziena/nifi_out/projekt/ArtistDetails')
     except:
         pass
